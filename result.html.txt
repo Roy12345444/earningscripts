@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Game Result</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+background: #f5f5f5;
+color: #333;
+padding: 20px;
+text-align: center;
+}
+h1 {
+color: #007bff;
+}
+.result {
+font-size: 24px;
+margin: 10px 0;
+}
+.big { color: green; }
+.small { color: orange; }
+.red { color: red; }
+.green { color: green; }
+.violet { color: purple; }
+</style>
+</head>
+<body>
+<h1>LIVE RESULT</h1>
+<div id="data">Loading...</div>
+
+<script>
+function getBigSmall(num) {
+return num >= 5 ? "Big" : "Small";
+}
+function getColor(num) {
+if ([1,4,7].includes(num)) return "red";
+if ([2,5,8].includes(num)) return "green";
+return "violet";
+}
+
+async function fetchResult() {
+try {
+const res = await fetch("https://api.bdg88zf.com/api/webapi/GetGameIssue");
+const data = await res.json();
+
+if (data && data.Data && data.Data.length > 0) {
+const last = data.Data[0];
+const number = parseInt(last.LuckyNum);
+const period = last.IssueNo;
+
+const bigSmall = getBigSmall(number);
+const color = getColor(number);
+
+document.getElementById("data").innerHTML = `
+<h2>Period: ${period}</h2>
+<div class="result">Number: <strong>${number}</strong></div>
+<div class="result ${bigSmall.toLowerCase()}">Size: <strong>${bigSmall}</strong></div>
+<div class="result ${color}">Color: <strong>${color.toUpperCase()}</strong></div>
+`;
+} else {
+document.getElementById("data").innerHTML = `<p>No data found in API response.</p>`;
+}
+} catch (e) {
+console.error(e);
+document.getElementById("data").innerHTML = `<p>Error loading data. Check API or try again later.</p>`;
+}
+}
+
+fetchResult();
+setInterval(fetchResult, 5000);
+</script>
+</body>
+</html>
